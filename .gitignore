@@ -1,0 +1,37 @@
+# --- Node.js / TypeScript ---
+node_modules/
+dist/
+build/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.env.production
+.DS_Store
+
+# --- Terraform ---
+# Local config and state
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+
+# Terraform crash logs
+crash.log
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration
+.terraformrc
+terraform.rc
+
+# --- Docker ---
+# If you are building images locally
+.docker/

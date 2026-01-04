@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Task Dashboard</title>
+    <style>
+        .input-group {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .active {
+            display: block;
+        }
+
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        input,
+        select {
+            margin: 5px 0;
+            display: block;
+            padding: 8px;
+            width: 300px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Create Task</h1>
+    <form id="taskForm" action="/add-task" method="POST">
+        <label for="taskType">Select Task Type:</label>
+        <select id="taskType" name="type" required>
+            <option value="" disabled selected>Choose a type...</option>
+            <option value="convert_currency">Currency Conversion</option>
+            <option value="calculate_interest">Calculate Interest</option>
+        </select>
+
+        <div id="currencyInputs" class="input-group">
+            <input type="number" name="amount" placeholder="Amount">
+            <input type="text" name="fromCurrency" placeholder="From (e.g. USD)">
+            <input type="text" name="toCurrency" placeholder="To (e.g. EUR)">
+        </div>
+
+        <div id="interestInputs" class="input-group">
+            <input type="number" name="principal" placeholder="Principal Amount">
+            <input type="number" step="0.01" name="annualRate" placeholder="Annual Rate (%)">
+            <input type="number" name="days" placeholder="Number of Days">
+        </div>
+
+        <button type="submit">Queue Task</button>
+    </form>
+    <hr>
+    <h2>Processed Results</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Result</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% results.forEach(function(r) { %>
+                <tr>
+                    <td>
+                        <%= r.taskId.substring(0,8) %>
+                    </td>
+                    <td>
+                        <%= r.result.convertedAmount %>
+                    </td>
+                    <td>
+                        <%= new Date(r.result.processedAt).toLocaleTimeString() %>
+                    </td>
+                </tr>
+                <% }); %>
+        </tbody>
+    </table>
+
+    <script>
+        const form = document.getElementById('taskForm');
+        const taskTypeSelect = document.getElementById('taskType');
+
+        const currencyDiv = document.getElementById('currencyInputs');
+        const interestDiv = document.getElementById('interestInputs');
+
+        taskTypeSelect.addEventListener('change', () => {
+            // 1. Hide both groups and disable their inputs
+            [currencyDiv, interestDiv].forEach(div => {
+                div.classList.remove('active');
+                div.style.display = 'none';
+                // Disable all inputs inside this div
+                Array.from(div.querySelectorAll('input')).forEach(i => i.disabled = true);
+            });
+
+            // 2. Show the selected group and enable its inputs
+            if (taskType.value === 'convert_currency') {
+                currencyDiv.style.display = 'block';
+                Array.from(currencyDiv.querySelectorAll('input')).forEach(i => i.disabled = false);
+            } else if (taskType.value === 'calculate_interest') {
+                interestDiv.style.display = 'block';
+                Array.from(interestDiv.querySelectorAll('input')).forEach(i => i.disabled = false);
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const type = taskTypeSelect.value;
+
+            let payload = {};
+            if (type === 'convert_currency') {
+                payload = {
+                    amount: document.getElementsByName('amount')[0].value,
+                    fromCurrency: document.getElementsByName('fromCurrency')[0].value,
+                    toCurrency: document.getElementsByName('toCurrency')[0].value
+                };
+            } else if (type === 'calculate_interest') {
+                payload = {
+                    principal: document.getElementsByName('principal')[0].value,
+                    annualRate: document.getElementsByName('annualRate')[0].value,
+                    days: document.getElementsByName('days')[0].value
+                };
+            }
+
+            const requestData = { type, ...payload };
+
+            try {
+                const response = await fetch('/add-task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (response.ok) {
+                    form.reset(); // This clears the form
+                    document.getElementById('currencyGroup').style.display = 'none';
+                    document.getElementById('interestGroup').style.display = 'none';
+                    const tbody = document.getElementById('resultsBody');
+                    tbody.innerHTML = ''; // Clear current table rows
+
+                    results.reverse().forEach(r => { // Show newest first
+                        const row = `
+                <tr>
+                    <td>${r.taskId.substring(0, 8)}...</td>
+                    <td>${r.type}</td>
+                    <td>${r.type === 'convert_currency'
+                                ? 'Amount: ' + r.result.convertedAmount
+                                : 'Interest: ' + r.result.interest}</td>
+                    <td>${new Date(r.result.processedAt).toLocaleTimeString()}</td>
+                </tr>
+            `;
+                        tbody.innerHTML += row;
+                    });
+                }
+            } catch (err) {
+                console.error("Submission error:", err);
+            }
+        });
+    </script>
+</body>
+
+</html>

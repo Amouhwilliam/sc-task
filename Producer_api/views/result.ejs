@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Results List</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background-color: #f9f9f9; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background-color: #007bff; color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        tr:hover { background-color: #f1f1f1; }
+        .no-data { text-align: center; color: #888; padding: 20px; }
+        .type-tag { background: #e2e3e5; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Processed Task Results</h1>
+        
+        <% if (resultsArray.length === 0) { %>
+            <div class="no-data">No results processed yet. Waiting for Worker...</div>
+        <% } else { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Type</th>
+                        <th>Calculation Result</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% resultsArray.reverse().forEach(task => { %>
+                        <tr>
+                            <td><code><%= task.taskId %></code></td>
+                            <td><span class="type-tag"><%= task.type %></span></td>
+                            <td>
+                                <% if (task.type === 'convert_currency') { %>
+                                    <strong><%= task.result.convertedAmount %></strong>
+                                <% } else if (task.type === 'calculate_interest') { %>
+                                    <strong><%= task.result.interest %></strong>
+                                <% } %>
+                            </td>
+                            <td><%= new Date(task.result.processedAt).toLocaleString() %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } %>
+
+        <p><a href="/">← Back to Dashboard</a></p>
+    </div>
+
+    <script>
+        // Auto-refresh the results page every 3 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
+    </script>
+</body>
+</html>
