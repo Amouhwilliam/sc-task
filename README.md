@@ -1,5 +1,5 @@
 
-# Scalable Capital Task — Running the Project
+# SC-Task — Running the Project
 
 Short instructions to run the Producer (API) and Worker services locally or with Docker.
 
