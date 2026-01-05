@@ -181,11 +181,12 @@ If I were on the Application Framework team, my goal would be to provide an IDP 
 ## Future Improvements
 
 1. **Event-Driven Evolution (SQS-SNS/EventBridge):** Move from polling to a push-model using SNS or SQS-to-Lambda triggers for near-zero latency.
-2. **State Management:** Replace the in-memory `resultsArray` with a persistent store like Redis (for speed) or DynamoDB (for long-term durability).
+2. **State Management:** Replace the in-memory `resultsArray` with a persistent store like Redis or DynamoDB.
 3. **Advanced Lifecycle Management:** Implement ChangeMessageVisibility "heartbeats" for long-running tasks to prevent duplicate processing.
 4. **Testing Suite:** Implement 100% test coverage with Jest for Unit tests and LocalStack for integration tests (simulating AWS SQS locally).
 5. **Modern UI:** Transition the EJS views to a React for a better user experience with real-time state management (via React Query).
 5. **Docker compose:** I could create a docker compose file which help start all of the apps with on command.
+6. **Validate Request and Auth:** I could add a validation layer to validate the data(tasks) that are sent to my api and protect my endpoints with authentication.
 
 
 Note: I provided the the screenshot showing that the code works in the screenshot folder
